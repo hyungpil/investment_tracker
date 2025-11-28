@@ -127,20 +127,6 @@ for name, symbol in selected_tickers.items():
         seen_symbols.add(symbol)
 selected_tickers = unique_tickers
 
-# --- Buy Me a Coffee Section ---
-st.sidebar.markdown("---")
-st.sidebar.markdown("### ☕ Support this app")
-
-# TODO: 본인의 Buy Me a Coffee 아이디로 변경하세요!
-buymeacoffee_url = "https://www.buymeacoffee.com/hpchoi"
-
-st.sidebar.markdown(f"""
-<a href="{buymeacoffee_url}" target="_blank">
-<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
-</a>
-""", unsafe_allow_html=True)
-
-
 # --- Main Logic ---
 
 # 1. Text Description
@@ -306,4 +292,5 @@ with st.spinner("Fetching market data..."):
                         
         except Exception as e:
             st.error(f"An error occurred: {e}")
+
 
