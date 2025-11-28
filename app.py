@@ -131,7 +131,11 @@ selected_tickers = unique_tickers
 st.markdown(f"### 🧐 What if you invested **${MONTHLY_INVESTMENT}** every month?")
 st.markdown(f"Simulation period: **{START_DATE}** to **{END_DATE}**")
 
-st.info("ℹ️ **Investment Date**: Investments are simulated to occur on the **first trading day** of each month.")
+st.info("""
+ℹ️ **Simulation Notes**:
+- Investments occur on the **first trading day** of each month.
+- **Dividends are not included** in this calculation.
+""")
 
 @st.cache_data
 def load_data(ticker_dict, start, end):
@@ -274,3 +278,4 @@ with st.spinner("Fetching market data..."):
                         
         except Exception as e:
             st.error(f"An error occurred: {e}")
+
