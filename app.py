@@ -30,10 +30,10 @@ def search_yahoo_finance(query):
 # --- Sidebar Configuration ---
 st.sidebar.header("Configuration")
 
-# 1. Date Selection
+# 1. Date Selection (Updated: End Date is always Today)
 st.sidebar.subheader("📅 Investment Period")
 start_date_input = st.sidebar.date_input("Start Date", date(2020, 1, 1))
-end_date_input = st.sidebar.date_input("End Date", date(2025, 11, 30))
+end_date_input = st.sidebar.date_input("End Date", datetime.today()) # 오늘 날짜로 자동 설정
 
 START_DATE = start_date_input.strftime("%Y-%m-%d")
 END_DATE = end_date_input.strftime("%Y-%m-%d")
@@ -127,7 +127,23 @@ for name, symbol in selected_tickers.items():
         seen_symbols.add(symbol)
 selected_tickers = unique_tickers
 
-# 제목처럼 크게 보이도록 ###(헤더)를 사용했습니다.
+# --- Buy Me a Coffee Section ---
+st.sidebar.markdown("---")
+st.sidebar.markdown("### ☕ Support this app")
+
+# TODO: 본인의 Buy Me a Coffee 아이디로 변경하세요!
+buymeacoffee_url = "https://www.buymeacoffee.com/YOUR_USERNAME"
+
+st.sidebar.markdown(f"""
+<a href="{buymeacoffee_url}" target="_blank">
+<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
+</a>
+""", unsafe_allow_html=True)
+
+
+# --- Main Logic ---
+
+# 1. Text Description
 st.markdown(f"### 🧐 What if you invested **${MONTHLY_INVESTMENT}** every month?")
 st.markdown(f"Simulation period: **{START_DATE}** to **{END_DATE}**")
 
@@ -217,8 +233,40 @@ with st.spinner("Fetching market data..."):
                      st.error("Could not calculate portfolio values.")
                 else:
                     combined_df = combined_df.ffill()
+                    
+                    # -----------------------------------------------
+                    # [MOVED UP] Metrics Section 
+                    # -----------------------------------------------
+                    st.subheader(f"Final Performance (As of {END_DATE})")
+                    
+                    final_invested = combined_df["Total Invested"].iloc[-1]
+                    
+                    # Create columns dynamically
+                    # Filter out tickers that failed to load
+                    valid_tickers = [name for name in selected_tickers.keys() if name in combined_df.columns]
+                    
+                    cols = st.columns(len(valid_tickers) + 1)
+                    
+                    # First column: Total Invested
+                    cols[0].metric("Total Invested", f"${final_invested:,.0f}")
+                    
+                    # Subsequent columns: Tickers
+                    for i, name in enumerate(valid_tickers):
+                        final_value = combined_df[name].iloc[-1]
+                        return_pct = ((final_value / final_invested) - 1) * 100
+                        
+                        # Color logic for metric
+                        cols[i+1].metric(
+                            f"{name}", 
+                            f"${final_value:,.0f}", 
+                            f"{return_pct:+.1f}%"
+                        )
+                    
+                    st.divider() # 구분선 추가
 
-                    # --- Visualization ---
+                    # -----------------------------------------------
+                    # [MOVED DOWN] Visualization Section
+                    # -----------------------------------------------
                     fig = go.Figure()
                     
                     # Plot Total Invested
@@ -247,30 +295,10 @@ with st.spinner("Fetching market data..."):
                         hovermode="x unified",
                         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
                         template="plotly_white",
-                        height=1000
+                        height=600  # 높이 약간 조정
                     )
                     
                     st.plotly_chart(fig, use_container_width=True)
-
-                    # --- Metrics ---
-                    st.subheader(f"Final Performance ({END_DATE})")
-                    
-                    final_invested = combined_df["Total Invested"].iloc[-1]
-                    
-                    # Create columns dynamically
-                    # Filter out tickers that failed to load
-                    valid_tickers = [name for name in selected_tickers.keys() if name in combined_df.columns]
-                    
-                    cols = st.columns(len(valid_tickers) + 1)
-                    
-                    # First column: Total Invested
-                    cols[0].metric("Total Invested", f"${final_invested:,.0f}")
-                    
-                    # Subsequent columns: Tickers
-                    for i, name in enumerate(valid_tickers):
-                        final_value = combined_df[name].iloc[-1]
-                        return_pct = ((final_value / final_invested) - 1) * 100
-                        cols[i+1].metric(f"{name} Value", f"${final_value:,.0f}", f"{return_pct:+.1f}%")
 
                     # Data Table
                     with st.expander("View Raw Data"):
@@ -278,4 +306,3 @@ with st.spinner("Fetching market data..."):
                         
         except Exception as e:
             st.error(f"An error occurred: {e}")
-
