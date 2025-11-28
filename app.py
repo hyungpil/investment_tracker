@@ -132,7 +132,7 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### ☕ Support this app")
 
 # TODO: 본인의 Buy Me a Coffee 아이디로 변경하세요!
-buymeacoffee_url = "https://www.buymeacoffee.com/YOUR_USERNAME"
+buymeacoffee_url = "https://www.buymeacoffee.com/hpchoi"
 
 st.sidebar.markdown(f"""
 <a href="{buymeacoffee_url}" target="_blank">
@@ -306,3 +306,4 @@ with st.spinner("Fetching market data..."):
                         
         except Exception as e:
             st.error(f"An error occurred: {e}")
+
